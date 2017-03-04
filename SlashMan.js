@@ -38,12 +38,15 @@ module.exports = {
 function afterTokenValidation(res, deets, params) {
 	// save somewhere in the deets (the auth object from mongo) 
 	// that this team is configured
+/*
+
 	if (!deets.configs.formWhatever && params.command !== '/config') {
 		res.setHeader('content-type', 'application/json');
 		res.writeHead(200);
 		res.end('You havent configured your form ids yet, please use the command /phab config to set them up');
 		return;
 	}
+*/
 
 	// this is probably unnecessary
 	if ( verification_token !== params.token ) {
