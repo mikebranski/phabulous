@@ -31,14 +31,10 @@ app.use(function(req,res,next){
     next();
 });
 
+// stuff in public folder is accessible directly from browser
 app.use(express.static('public'));
 
-app.get("/delold", function(req, res) {
-    mongoDao.deleteOldRequests();
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end('SUCESS!!!!');
-});
-
+// Might need to change these handlers
 app.get("/slashy", function(req, res) {
     slashMan.handleSlashRequest(req, res);
 });
@@ -47,7 +43,7 @@ app.post("/slashy", function(req, res) {
     slashMan.handleSlashRequest(req, res);
 });
 
-
+// These are for handling custom actions (pushing of buttons in interactive messages)
 app.post("/action", function(req, res) {
 	actionMan.handleAction(req, res);
 });
@@ -57,6 +53,7 @@ app.get("/action", function(req, res) {
     res.end('Got get Data');
 });
 
+// This just displays an html page with the link to install (with redirects, etc)
 app.post("/install", function(req, res) {
     authMan.handleInstall(req,res);
 });
@@ -65,6 +62,7 @@ app.get("/install", function(req, res) {
     authMan.handleInstall(req,res);
 });
 
+// Handles the response from slack after install attempt
 app.get("/oauth", function(req, res) {
     authMan.handleOauth(req, res);
 });

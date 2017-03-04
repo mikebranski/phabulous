@@ -54,7 +54,6 @@ module.exports = {
       });
   },
 
-
   getRequest(id, callback, res, params) {
       var query = { 'id': id };
       DB.collection('requests').findOne(query, function(err, obj) {

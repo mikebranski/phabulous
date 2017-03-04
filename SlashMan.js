@@ -28,15 +28,24 @@ module.exports = {
 			post.db = req.db;
 
 			// skip team verification, just use slash tokens
-			afterTokenValidation(res, {}, post);
-			// req.db.getAuth(post.team_id, afterTokenValidation, res, post);
+			// afterTokenValidation(res, {}, post);
+			req.db.getAuth(post.team_id, afterTokenValidation, res, post);
 
 		});
 	}
 };
 
 function afterTokenValidation(res, deets, params) {
+	// save somewhere in the deets (the auth object from mongo) 
+	// that this team is configured
+	if (!deets.configs.formWhatever && params.command !== '/config') {
+		res.setHeader('content-type', 'application/json');
+		res.writeHead(200);
+		res.end('You havent configured your form ids yet, please use the command /phab config to set them up');
+		return;
+	}
 
+	// this is probably unnecessary
 	if ( verification_token !== params.token ) {
 		res.setHeader('content-type', 'application/json');
 		res.writeHead(200);
@@ -45,50 +54,21 @@ function afterTokenValidation(res, deets, params) {
 		return;
 	}
 
-	if ( params.command === '/gifadamn' || params.command === '/gad' ) {
-		// TODO: if we're in a group, and the bot is not, reply with a message to invite him!
+	switch (params.command) {
+		case '/config':
+			// this is a config request...do stuff then respond accordingly.
 
-  		var gUrl = 'http://api.giphy.com/v1/gifs/search?limit=10&api_key=' + token + '&q=' + encodeURIComponent(params.text);
-  		Request(gUrl, function (error, response, body) {
-			if (!error && response.statusCode == 200) {
-	            var parsed = JSON.parse(body);
-	            var newRecord = createRequestRecord(params.text, parsed, params);
-	            params.db.insertRequest(newRecord);
+			break;
+		case '/thisSlashCommand': 
 
-				// BUILD HTML
-				res.setHeader('content-type', 'application/json');
-				res.writeHead(200);
-				res.end(actionMan.newResponse(newRecord, 0));
-			} else {
-				// show an error message
-				res.setHeader('content-type', 'application/json');
-				res.writeHead(200);
-				res.end(JSON.stringify({'msg':'something went terrible wrong'}));
-			}
-		});
-    } else {
-    	// handle action response maybe?
-    	res.setHeader('content-type', 'application/json');
-		res.writeHead(200);
-		res.end(JSON.stringify({'msg':'sall good'}));
-    }
-}
+			break;
+		case '/thatSlashCommand': 
 
-function createRequestRecord(terms, parsedBody, post) {
-	var imgs = [];
-
-	parsedBody.data.forEach(function(item) {
-		imgs.push(item.images.fixed_height.url);
-	});
-
-	var obj = {
-		id: uuid.v4(),
-		terms: terms,
-		imgs: imgs,
-		uid: post.user_id,
-		tid: post.team_id,
-		createTS: Date.now()
+			break;
+		
+		default:
+			res.setHeader('content-type', 'application/json');
+			res.writeHead(200);
+			res.end(JSON.stringify({'msg':'sall good'}));
 	}
-
-	return obj;
 }
