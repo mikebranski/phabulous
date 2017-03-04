@@ -26,6 +26,7 @@ app.listen(PORT,function(){
   console.log("Started server!");
 });
 
+// I attach the DB to the req object so its available all over the place.
 app.use(function(req,res,next){
     req.db = mongoDao;
     next();
